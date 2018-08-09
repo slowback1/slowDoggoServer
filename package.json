@@ -2,6 +2,9 @@
   "name": "slow_doggo_server",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+      "node": "10.8.0"
+  }
   "dependencies": {
     "express": "^",
     "mongoose": "^",
