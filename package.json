@@ -4,11 +4,11 @@
   "private": true,
   "engines": {
       "node": "10.8.0"
-  }
+  },
   "dependencies": {
     "express": "^",
     "mongoose": "^",
-    "body-parser": "^"
+    "body-parser": "^",
   },
   "scripts": {
 
