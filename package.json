@@ -1,0 +1,13 @@
+{
+  "name": "slow_doggo_server",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "^",
+    "mongoose": "^",
+    "body-parser": "^"
+  },
+  "scripts": {
+
+  }
+}
