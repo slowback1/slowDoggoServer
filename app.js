@@ -4,7 +4,6 @@ var bodyParser = require('body-parser');
 var nodeSchedule = require('node-schedule');
 var mongoURL = require('./mongoURL');
 
-
 const port = (process.env.PORT || 8082);
 mongoose.connect(mongoURL);
 mongoose.Promise = global.Promise;
@@ -38,6 +37,7 @@ db.once('open', function() {
 const app = express();
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
@@ -46,7 +46,13 @@ app.use(bodyParser.json());
 app.options('/doggo', (req, res) => {
     console.log("e");
     res.send("e");
-})
+});
+app.options('/doggoAdd', (req, res) => {
+    res.send('e');
+});
+app.options('/doggoSub', (req, res) => {
+    res.send('e');
+});
 app.get('/doggo', (req,res) => {
     DoggoImg.find({}, function(err, doggoImg) {
         res.send(doggoImg);
@@ -70,7 +76,7 @@ app.post('/doggo', (req, res) => {
         res.send("saved! " + doggo);
     });
 })
-app.put('/doggo', function(req, res) {
+app.put('/doggoAdd', function(req, res) {
     var id = req.body.id
     DoggoImg.findOneAndUpdate({_id: id}, {$inc : {'meta.votes': 1}}, function(err, doc) {
         if(err){
@@ -80,6 +86,16 @@ app.put('/doggo', function(req, res) {
         res.send(doc);
     });
 });
+app.put('/doggoSub', function(req, res) {
+    var id = req.body.id;
+    DoggoImg.findOneAndUpdate({_id: id}, {$inc: {'meta.votes': -1}}, function(err, doc) {
+        if(err) {
+            console.log("something went wrong with updating");
+        }
+        console.log(doc);
+        res.send(doc);
+    });
+})
 /*
 app.get('/user', (req, res) => {
     User.findOne({'email': req.body.email}, function(err, user));
