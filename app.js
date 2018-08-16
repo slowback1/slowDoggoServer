@@ -1,6 +1,8 @@
 const express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
+var nodeSchedule = require('node-schedule');
+var mongoURL = require('./mongoURL');
 
 
 const port = (process.env.PORT || 8082);
@@ -12,6 +14,7 @@ db.once('open', function() {
 
 
 })
+
     var doggoImgSchema = new mongoose.Schema({
         link: String,
 
@@ -29,6 +32,7 @@ db.once('open', function() {
     });
     
     var DoggoImg = mongoose.model('DoggoImg', doggoImgSchema);
+    var ArchiveDoggo = mongoose.model('ArchiveDoggo', doggoImgSchema);
     var User = mongoose.model('User', userSchema);
     
 const app = express();
@@ -48,6 +52,11 @@ app.get('/doggo', (req,res) => {
         res.send(doggoImg);
     })
 })
+app.get('/archive', (req, res) => {
+    ArchiveDoggo.find({}, function(err, doggoImg) {
+        res.send(doggoImg);
+    })
+})
 app.post('/doggo', (req, res) => {
     var link = req.body.link;
     console.log(req.body);
@@ -62,11 +71,13 @@ app.post('/doggo', (req, res) => {
     });
 })
 app.put('/doggo', function(req, res) {
-    DoggoImg.findOneAndUpdate({_id: req.body.id}, {$set:{meta: {votes: meta.votes+1}}}, {new: true}, function(err, doc) {
+    var id = req.body.id
+    DoggoImg.findOneAndUpdate({_id: id}, {$inc : {'meta.votes': 1}}, function(err, doc) {
         if(err){
             console.log("something went wrong with updating");
         }
         console.log(doc);
+        res.send(doc);
     });
 });
 /*
@@ -74,7 +85,22 @@ app.get('/user', (req, res) => {
     User.findOne({'email': req.body.email}, function(err, user));
 })
 */
-
+nodeSchedule.scheduleJob('0 0 * * *', () => {
+    DoggoImg.sort('meta.votes')
+    .exec(function (err, doggo) {
+        if (err) console.error(err);
+        
+        var nuArchive = new ArchiveDoggo({link: doggo.link, date: doggo.date});
+        nuArchive.save(function(err, archive) {
+            if(err) return console.error(err);
+            res.send("saved! " + archive);
+        })
+        DoggoImg.remove({}, function(err, doggo) {
+            if(err) return console.error(err);
+            res.send("deleted! " + doggo);
+        })
+    })
+})
 app.listen(port, function() {
     console.log('server is running on port' + port);
 });
