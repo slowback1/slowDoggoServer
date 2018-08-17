@@ -2,10 +2,11 @@ const express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var nodeSchedule = require('node-schedule');
-var mongoURL = require('./mongoURL');
+var MongoURL = require('./mongoURL');
+
 
 const port = (process.env.PORT || 8082);
-mongoose.connect(mongoURL);
+mongoose.connect(MongoURL);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -82,7 +83,6 @@ app.put('/doggoAdd', function(req, res) {
         if(err){
             console.log("something went wrong with updating");
         }
-        console.log(doc);
         res.send(doc);
     });
 });
@@ -92,31 +92,38 @@ app.put('/doggoSub', function(req, res) {
         if(err) {
             console.log("something went wrong with updating");
         }
-        console.log(doc);
         res.send(doc);
     });
-})
+});
+app.delete('/doggo', function(req, res) {
+    var id = req.body.id;
+    DoggoImg.findOneAndRemove({ _id: id }, function(err) {
+        if(err) console.error(err);
+        res.send("e");
+    });
+});
 /*
 app.get('/user', (req, res) => {
     User.findOne({'email': req.body.email}, function(err, user));
 })
 */
-nodeSchedule.scheduleJob('0 0 * * *', () => {
-    DoggoImg.sort('meta.votes')
+/*
+nodeSchedule.scheduleJob('7 0 * * *', () => {
+    DoggoImg.findOne({}).sort('meta.votes')
     .exec(function (err, doggo) {
         if (err) console.error(err);
         
         var nuArchive = new ArchiveDoggo({link: doggo.link, date: doggo.date});
         nuArchive.save(function(err, archive) {
             if(err) return console.error(err);
-            res.send("saved! " + archive);
+            
         })
         DoggoImg.remove({}, function(err, doggo) {
             if(err) return console.error(err);
-            res.send("deleted! " + doggo);
+            
         })
     })
-})
+})*/
 app.listen(port, function() {
     console.log('server is running on port' + port);
 });
