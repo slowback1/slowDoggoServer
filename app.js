@@ -2,11 +2,11 @@ const express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var nodeSchedule = require('node-schedule');
-var MongoURL = require('./mongoURL');
+var mongoURL = require('./mongoURL');
 
 
 const port = (process.env.PORT || 8082);
-mongoose.connect(MongoURL);
+mongoose.connect(mongoURL);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -107,8 +107,8 @@ app.get('/user', (req, res) => {
     User.findOne({'email': req.body.email}, function(err, user));
 })
 */
-/*
-nodeSchedule.scheduleJob('7 0 * * *', () => {
+
+nodeSchedule.scheduleJob('0 0 * * *', () => {
     DoggoImg.findOne({}).sort('meta.votes')
     .exec(function (err, doggo) {
         if (err) console.error(err);
@@ -123,7 +123,7 @@ nodeSchedule.scheduleJob('7 0 * * *', () => {
             
         })
     })
-})*/
+})
 app.listen(port, function() {
     console.log('server is running on port' + port);
 });
